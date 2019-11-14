@@ -1,0 +1,48 @@
+
+body {
+    font-family: Arial, sans-serif;
+  }
+  
+  .info {
+    background-color: #eee;
+    border: thin solid #333;
+    border-radius: 3px;
+    margin: 0 0 20px;
+    padding: 0 5px;
+  }
+  
+  .player-container {
+    background: #1a1a1a;
+    overflow: auto;
+    width: 40%;
+    margin: 0 0 20px;
+  }
+  
+  .video-js {
+    float: left;
+  }
+  .video-js-dimensions {
+      width: 100% !important;
+      height: 400px;
+  }
+  
+  .vjs-playlist,
+  .my-custom-class,
+  #my-custom-element {
+    float: left;
+    width: 300px;
+  }
+  
+  .vjs-playlist.vjs-playlist-horizontal {
+    float: none;
+    height: 120px;
+    width: 100%;
+  }
+  .vjs-playlist-horizontal .vjs-playlist-item {
+    width: 25%;
+}
+  
+.vjs-playlist .vjs-selected {
+  background-color: #141a21;
+  border: 1px solid #fff;
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link href="./node_modules/video.js/dist/video-js.css" rel="stylesheet">
+    <link href="./scripts/videojs-playlist-ui.css" rel="stylesheet">
+    <link href="./css/video-playlist-ui-custom.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <style>  
+        .container {
+            width: 100%;
+            min-height: 700px;
+        }
+        .leftFrame{
+            width: 49%;
+            float: left;
+            border-right: 5px solid #bdbdbd;
+        }
+        .rightVideoJs {
+            width: 49%;
+            float: left;
+            text-align: center;
+            padding: 10px;
+        }
+        .clear{
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="leftFrame">
+            <iframe id="iframeVideosList" 
+            width="100%" height="500px" 
+            src="/Users/nikunj/tools/Learning Videos/Angular/[FreeCourseSite.com] Udemy - Learning MEAN Stack by Building Real world Application/1. Angular Fundamentals" 
+            ></iframe>
+        </div>
+
+        <div class="rightVideoJs">
+            <video id='video-js' class='video-js' controls preload='auto'>
+            </video>
+            <div class="vjs-playlist"></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+
+
+    <script src='./node_modules/video.js/dist/video.js'></script>
+    <script src='./node_modules/videojs-playlist/dist/videojs-playlist.js'></script>
+    <script src="./scripts/videojs-playlist-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+
+    
+    <script>
+        document.getElementById('iframeVideosList').onload= function() {
+            var iframe = document.getElementById("iframeVideosList");
+            var iFrameDOM = $("iframe#iframeVideosList").contents();
+            var btn = jQuery(`<button onClick="getHref()">Load Videos</button>`);
+                btn.appendTo(iFrameDOM.find("#parentDirLinkBox"));
+            var src = 'function getHref() {parent.postMessage("loadVideos", "*");}';
+            
+            iFrameDOM.find('body').append('iframe here');
+            iFrameDOM.find('body').append('\<script>'+src+'\<\/script>');
+        }; 
+        window.addEventListener('message', function (event) {
+            if(event.data == 'loadVideos') {
+                loadVideosFromIframe();
+            }
+        }, false);
+
+        var player;
+
+        function initializePlayList(videoList) {
+            var playList = [];
+            const myOrderedArray = _.sortBy(videoList, o => o.name)
+            myOrderedArray.forEach(function(item, index){
+                let newIndex = Math.floor(Math.random() * Math.floor(300));
+                let videoObj = {
+                    name: item.name,
+                    sources: [  { src: item.src, type: 'video/mp4' } ],
+                    thumbnail: [  { src: `https://picsum.photos/id/${newIndex}/300/85` } ]
+                }
+                playList.push(videoObj);
+            })
+            player.playlist(playList);
+            player.playlistUi({horizontal: true});
+            player.playlist.autoadvance(5);
+
+        }
+
+        function init_video_js() {
+            player = videojs('video-js');
+        }
+
+        function loadVideosFromIframe() {
+            var linkArray = [];
+            var iFrameDOM = $("iframe#iframeVideosList").contents();
+            iFrameDOM.find('.icon.file').each(function(event) {
+                var fileName = this.parentElement.dataset.value;
+                var ext = fileName.substr(fileName.lastIndexOf('.') + 1);
+                if(ext == 'mp4' || ext == 'MP4') {
+                    linkArray.push({src: this.href, name: fileName});
+                }
+            });
+            initializePlayList(linkArray)
+        }
+
+        
+        (async() => {
+            await init_video_js();
+        })();
+    </script>
+
+
+</body>
+</html>

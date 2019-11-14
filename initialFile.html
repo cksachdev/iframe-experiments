@@ -1,29 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+  <meta charset="utf-8">
+  <title>Video.js Playlist UI - Default Implementation</title>
+  <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
+  <link href="./scripts/videojs-playlist-ui.css" rel="stylesheet">
+  <link href="./css/video-playlist-ui-custom.css" rel="stylesheet">
 </head>
 <body>
+  <div class="player-container">
+    <video
+      id="video"
+      class="video-js"
+      height="300"
+      width="600"
+      controls>
+    </video>
 
-        <input type=file webkitdirectory>
-        <ol></ol>
-    
-    
-        <script>
-            document.querySelector('input[type=file]').addEventListener('change', function(event) {
-                var files = event.target.files;
-                for (var i = 0; i < files.length; ++i) {
-                    var t = files.item(i).webkitRelativePath + " " + files.item(i).name;
-                    var li = document.createElement('li');
-                    li.textContent = t;
-                    document.querySelector('ol').appendChild(li);
-                    li.offsetHeight;
-                }
-            });
-        </script>
-    
+    <div class="vjs-playlist"></div>
+  </div>
+
+  <script src="node_modules/video.js/dist/video.js"></script>
+  <script src="node_modules/videojs-playlist/dist/videojs-playlist.js"></script>
+  <script src="./scripts/videojs-playlist-ui.js"></script>
+
+  <script>
+    var player = videojs('video');
+
+    player.playlist([{
+      name: 'Disney\'s Oceans 1',
+      description: 'Explore',
+      duration: 45,
+      sources: [
+        { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+        { src: 'http://vjs.zencdn.net/v/oceans.webm', type: 'video/webm' },
+      ],
+      thumbnail: [
+        {
+          srcset: 'test/example/oceans.jpg',
+          type: 'image/jpeg',
+          media: '(min-width: 400px;)'
+        },
+        {
+          src: 'https://picsum.photos/300/85'
+        }
+      ]
+    },
+    {
+      name: 'Disney\'s Oceans 2',
+      description: 'Explore the depths',
+      duration: 45,
+      sources: [
+        { src: 'http://vjs.zencdn.net/v/oceans.mp4?2', type: 'video/mp4' },
+        { src: 'http://vjs.zencdn.net/v/oceans.webm?2', type: 'video/webm' },
+      ],
+      thumbnail: [
+        {
+          srcset: 'test/example/oceans.jpg',
+          type: 'image/jpeg',
+          media: '(min-width: 400px;)'
+        },
+        {
+          src: 'test/example/oceans-low.jpg'
+        }
+      ]
+    },
+    {
+      name: 'Disney\'s Oceans 3',
+      description: 'Explore',
+      duration: 45,
+      sources: [
+        { src: 'http://vjs.zencdn.net/v/oceans.mp4?3', type: 'video/mp4' },
+        { src: 'http://vjs.zencdn.net/v/oceans.webm?3', type: 'video/webm' },
+      ],
+
+      // you can use <picture> syntax to display responsive images
+      thumbnail: [
+        {
+          srcset: 'test/example/oceans.jpg',
+          type: 'image/jpeg',
+          media: '(min-width: 400px;)'
+        },
+        {
+          src: 'test/example/oceans-low.jpg'
+        }
+      ]
+    }, 
+    {
+      name: 'Sintel (No Thumbnail)',
+      description: 'The film follows a girl named Sintel who is searching for a baby dragon she calls Scales.',
+      sources: [
+        { src: 'http://media.w3.org/2010/05/sintel/trailer.mp4', type: 'video/mp4' },
+        { src: 'http://media.w3.org/2010/05/sintel/trailer.webm', type: 'video/webm' },
+        { src: 'http://media.w3.org/2010/05/sintel/trailer.ogv', type: 'video/ogg' }
+      ],
+      thumbnail: false
+    }]);
+
+    // Initialize the playlist-ui plugin with no option (i.e. the defaults).
+    player.playlistUi({horizontal: true});
+  </script>
 </body>
 </html>

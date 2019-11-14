@@ -34,10 +34,9 @@
                 btn.appendTo(this.parentElement);
             })
             var src = 'function getHref(href) { alert(href); window.parent.postMessage(href, "*");}';
-                
-
-                iFrameDOM.find('body').append('iframe here');
-                iFrameDOM.find('body').append('\<script>'+src+'\<\/script>');
+            
+            iFrameDOM.find('body').append('iframe here');
+            iFrameDOM.find('body').append('\<script>'+src+'\<\/script>');
         };
         
     </script>
