@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <style type="text/css">
+  	.dragFrame {
+	  position: absolute;
+	  top: 40px;
+	  left: 20px;
+	  width: 300px;
+	  height: 300px;
+	  background-color: #6e78cd;
+	}
+
+	.dropFrame {
+	  position: absolute;
+	  top: 40px;
+	  left: 400px;
+	  width: 300px;
+	  height: 300px;
+	  background-color: #9ccd8b;
+	}
+
+	#frameParent {
+	  width: 100%;
+	  height: 100%;
+	  background-color: #dce6f0;
+	}
+
+	.dragItem {
+	  position: absolute;
+	  display: none;
+	  z-index: 200;
+	}
+
+	.instruct {
+	  font-size: 20px;
+	}
+  </style>
+</head>
+
+<body id="frameParent">
+
+<div class="instruct">Sorry, this only works in Chrome...</div>
+
+<iframe class="dragFrame dragDrop" src="/Users/nikunj/Downloads/angular-rqzeue/src"
+        width="400" height="400"></iframe>
+
+<!-- <iframe class="dragFrame dragDrop" srcdoc='</html><head><script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script><script src="https://codepen.io/brenzy/pen/zxMZmO.js"></script></head><body style="width:100%;height:100%" class="frameBody dragFrameBody"></body></html>'></iframe> -->
+
+
+<iframe class="dropFrame dragDrop" srcdoc='</html><head><script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script><script src="https://codepen.io/brenzy/pen/zxMZmO.js"></script></head><body style="width:100%;height:100%" class="frameBody dropFrameBody"></body></html>'></iframe>
+
+<div class="dragItem"></div>
+
+<script type="text/javascript">
+	// http://stackoverflow.com/questions/28879784/javascript-jquery-drag-and-drop-element-between-two-iframes
+$(document).ready(function() {
+
+  var dragItem;
+  var dragItemId;
+  var dragItemText;
+
+  // frame1 code
+  var dragElement;
+  var myId;
+  var dragStarted = false;
+
+  function dragFrameMessageHandler(message) {
+    var action = message.data.action;
+    if (action == 'itemDropped') {
+      $("#" + message.data.itemId).remove();
+      dragStarted = false;
+      dragElement = null;
+    } else if (action == 'cancelDrag') {
+      dragStarted = false;
+      dragElement = null;
+    }
+  }
+
+  $("#tbody").each( function () {
+
+    window.addEventListener('message', dragFrameMessageHandler, false);
+    
+    myId = ".dragFrame";
+
+    // $("li").mousedown(function (event) {
+    //   dragElement = $(this);
+    //   if(event.stopPropagation) event.stopPropagation();
+    //   if(event.preventDefault) event.preventDefault();
+    //   event.cancelBubble=true;
+    //   event.returnValue=false;
+    //   return false;
+    // });
+
+    $(document).mousemove(function (event) {
+      if (dragElement) {
+        if (!dragStarted) {
+          // tell the parent to start dragging the item
+          parent.postMessage({
+            action: "dragStart", frame: myId,
+            itemText: dragElement.text(), itemId: dragElement.attr('id'),
+            offset: {left: event.pageX, top: event.pageY}
+          }, '*');
+          dragStarted = true;
+        } else {
+          parent.postMessage({action: "dragMove", frame: myId,
+            offset: {left: event.pageX, top: event.pageY}}, '*');
+        }
+      }
+    });
+
+    $(document).mouseup(function (event) {
+      if (dragStarted) {
+        parent.postMessage({
+          action: "cancelDrag", frame: myId,
+          itemText: dragElement.text(), itemId: dragElement.attr('id'),
+          offset: {left: event.pageX, top: event.pageY}
+        }, '*');
+      }
+      dragStarted = false;
+      dragElement = null;
+    });
+
+  });
+
+  function dropFrameMessageHandler(message) {
+    var action = message.data.action;
+    if (action == 'dropItem') {
+      var newItem = $("<li id='" + message.data.itemId + "'>" + message.data.itemText + "</li>");
+      $("ul").append(newItem);
+      parent.postMessage({action: "itemDropped", frame: myId, itemId: dragItemId}, '*');
+      dragItemId = null;
+    } else if (action == 'dragStart') {
+      dragItemId = message.data.itemId;
+      dragItemText = message.data.itemText;
+    } else if (action == 'cancelDrag') {
+      dragItemId = null;
+    }
+  }
+
+  $(".dropFrameBody").each( function () {
+    window.addEventListener('message', dropFrameMessageHandler, false);
+    // var contents = '<div style="font-size:20px"> DROP INTO THIS FRAME</div>' +
+    //     '<ul><li id="element2-1">drop frame element 1</li><li id="element2-2">drop frame element 2</li></ul>';
+    // $(this).append(contents);
+    myId = ".dropFrame";
+    $(document).mouseup(function () {
+      if (dragItemId) {
+        // could check the mouse co-ordinate here and drop in the correct spot
+        // or not allow the drop
+        // var newItem = $("<li id='" + dragItemId + "'>" + dragItemText + "</li>");
+        // $("ul").append(newItem);
+        parent.postMessage({action: "itemDropped", frame: myId, itemId: dragItemId}, '*');
+        dragItemId = null;
+      }
+    });
+    $(document).mousemove(function (event) {
+      if (dragItemId) {
+        parent.postMessage({action: "dragMove", frame: myId,
+          offset: {left: event.pageX, top: event.pageY}}, '*');
+      }
+    });
+  });
+
+  // Parent js
+  var dragFrame = $(".dragFrame");
+  var dropFrame = $(".dropFrame");
+  function parentMessageHandler(message) {
+    var action = message.data.action;
+    if (action == 'dragStart') {
+      dragItem = $(".dragItem");
+      dragItem.text(message.data.itemText);
+      dragItem.show();
+      dragItem.offset({top: message.data.offset.top, left: message.data.offset.left});
+      dragItemId = message.data.itemId;
+      dragItemText = message.data.itemText;
+      dropFrame[0].contentWindow.postMessage(message.data, '*');
+    } else if (action == 'dragMove') {
+      var offsetTop = message.data.offset.top;
+      var offsetLeft = message.data.offset.left;
+      if (message.data.frame == ".dropFrame") {
+        var dropFrameOffset = dropFrame.offset();
+        offsetTop = offsetTop + dropFrameOffset.top;
+        offsetLeft = offsetLeft + dropFrameOffset.left;
+      }
+      if (dragItem) {
+        dragItem.offset({top: offsetTop, left: offsetLeft});
+      }
+    } else if (dragItem && action == 'cancelDrag') {
+      dropFrame[0].contentWindow.postMessage({action: 'cancelDrag', itemId: dragItemId}, '*');
+      dragItem.hide();
+      dragItem = null;
+    } else if (action == "itemDropped") {
+      dragFrame[0].contentWindow.postMessage({action: 'itemDropped', itemId: dragItemId}, '*');
+    }
+  }
+
+  $("#frameParent").each( function () {
+
+    window.addEventListener('message', parentMessageHandler, false);
+
+   $(document).mousemove(function (event) {
+      if (dragItem) {
+        dragItem.offset({left: event.pageX, top: event.pageY});
+      }
+    });
+
+    $(document).mouseup(function (event) {
+      var dropWin = dropFrame[0].contentWindow;
+      var dragWin = dragFrame[0].contentWindow;
+      if (dragItem) {
+        // get the drop position
+        var dropFrameOffset = dropFrame.offset();
+        // If it is in the drop zone, notify the drop frame
+        if (dropFrameOffset.top < event.clientY && dropFrameOffset.top + dropFrame.height() > event.clientY &&
+            dropFrameOffset.left < event.clientX && dropFrameOffset.left  + dropFrame.width() > event.clientX) {
+          dropWin.postMessage({action: 'dropItem', itemId: dragItemId, itemText: dragItemText}, '*');
+          dragItem.hide();
+          dragItem = null;
+        } else {
+          dragWin.postMessage({action: 'cancelDrag', itemId: dragItemId, itemText: dragItemText}, '*');
+          dragItem.hide();
+          dragItem = null;
+        }
+      }
+    });
+
+  });
+
+});
+</script>
+</html>

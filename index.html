@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <!-- include jQuery library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+    <script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>
+
+</head>
+<body>
+    <iframe src="/Users/nikunj/Downloads/angular-rqzeue/src"
+        width="400" height="400"
+        id="dirExplorer"
+    ></iframe>
+
+    <div>
+            <input type="file" class="my-pond" name="filepond" webkitdirectory/>
+    </div>
+
+    <script>
+        
+        document.getElementById('dirExplorer').onload= function() {
+            var iframe = document.getElementById("dirExplorer");
+            var iFrameDOM = $("iframe#dirExplorer").contents();
+            iFrameDOM.find('.icon.file').each(function(){
+                var btn = jQuery(`<button onClick="getHref('${this.href}')">${this.parentElement.dataset.value}</button>`);
+                btn.appendTo(this.parentElement);
+            })
+            var src = 'function getHref(href) { alert(href); window.parent.postMessage(href, "*");}';
+                
+
+                iFrameDOM.find('body').append('iframe here');
+                iFrameDOM.find('body').append('\<script>'+src+'\<\/script>');
+        };
+        
+    </script>
+<!-- 
+    <input type=file webkitdirectory>
+    <ol></ol>
+
+
+    <script>
+        document.querySelector('input[type=file]').addEventListener('change', function(event) {
+            var files = event.target.files;
+            for (var i = 0; i < files.length; ++i) {
+                var t = files.item(i).webkitRelativePath + " " + files.item(i).name;
+                var li = document.createElement('li');
+                li.textContent = t;
+                document.querySelector('ol').appendChild(li);
+                li.offsetHeight;
+            }
+        });
+    </script> -->
+
+    <script>
+        $(function(){
+            const pond = FilePond.create();
+            pond.addFile('original.html');
+            // First register any plugins
+            //$.fn.filepond.registerPlugin(FilePondPluginImagePreview);
+        
+            // Turn input element into a pond
+            $('.my-pond').filepond();
+        
+            // Set allowMultiple property to true
+            $('.my-pond').filepond('allowMultiple', true);
+        
+            // Listen for addfile event
+            $('.my-pond').on('FilePond:addfile', function(error, file) {
+                if (error) {
+                    console.log('File Add Error: ' , error);
+                    return;
+                }
+                console.log('File Added', file.filename);  
+            });
+
+            $('.my-pond').filepond('addFile', '/Users/nikunj/Public/Nikunj/experiments/iframething/initialFile.html').then(function(file){
+                console.log('file added', file);
+            });
+            
+        
+        });
+        // Manually add a file using the addfile method
+        function addFileToPond(loc) {
+            $('.my-pond').filepond('addFile', './initialFile.html').then(function(file){
+                console.log('file added', file);
+            });
+        }
+
+        window.addEventListener('message', function(event){
+            alert(`Received data ${event.data} from origin ${event.origin}  `)
+            addFileToPond(event.data);
+        })
+        </script>
+</body>
+</html>

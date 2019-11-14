@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+
+        <input type=file webkitdirectory>
+        <ol></ol>
+    
+    
+        <script>
+            document.querySelector('input[type=file]').addEventListener('change', function(event) {
+                var files = event.target.files;
+                for (var i = 0; i < files.length; ++i) {
+                    var t = files.item(i).webkitRelativePath + " " + files.item(i).name;
+                    var li = document.createElement('li');
+                    li.textContent = t;
+                    document.querySelector('ol').appendChild(li);
+                    li.offsetHeight;
+                }
+            });
+        </script>
+    
+</body>
+</html>

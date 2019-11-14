@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- include jQuery library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <!-- <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+    <script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script> -->
+
+    <style>
+        #drop-area {
+        border: 2px dashed #ccc;
+        border-radius: 20px;
+        width: 480px;
+        font-family: sans-serif;
+        margin: 100px auto;
+        padding: 20px;
+        }
+        #drop-area.highlight {
+        border-color: purple;
+        }
+    </style>
+</head>
+<body>
+    <iframe src="/Users/nikunj/Downloads/angular-rqzeue/src"
+        width="400" height="400"
+        id="dirExplorer"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation"
+    ></iframe>
+
+   
+
+    <div id="drop-area">
+        <input type=file webkitdirectory>
+    </div>
+    <ol></ol>
+    <ul id="listing"></ul>
+
+
+    <script>
+        document.querySelector('input[type=file]').addEventListener('change', function(event) {
+            var files = event.target.files;
+            for (var i = 0; i < files.length; ++i) {
+                var t = files.item(i).webkitRelativePath + " " + files.item(i).name;
+                var li = document.createElement('li');
+                li.textContent = t;
+                document.querySelector('ol').appendChild(li);
+                li.offsetHeight;
+            }
+        });
+    </script>
+
+
+
+    <script>
+        
+        document.getElementById('dirExplorer').onload= function() {
+            var iframe = document.getElementById("dirExplorer");
+            var iFrameDOM = $("iframe#dirExplorer").contents();
+            iFrameDOM.find('.icon.file').each(function(){
+                var btn = jQuery(`<button onClick="getHref('${this.href}')">${this.parentElement.dataset.value}</button>`);
+                btn.appendTo(this.parentElement);
+            })
+            var src = 'function getHref(href) { alert(href); window.parent.postMessage(href, "*");}';
+            
+            iFrameDOM.find('body').append('iframe here');
+            iFrameDOM.find('body').append('\<script>'+src+'\<\/script>');
+        };
+
+        window.addEventListener('message', function(event){
+            console.log(event.data)
+        });
+
+        let dropArea = document.getElementById('drop-area')
+        ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false)
+        })
+
+        function preventDefaults (e) {
+        e.preventDefault()
+        e.stopPropagation()
+        }
+
+        ;['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false)
+        })
+
+        ;['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false)
+        })
+
+        function highlight(e) {
+        dropArea.classList.add('highlight')
+        }
+
+        function unhighlight(e) {
+        dropArea.classList.remove('highlight')
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false)
+
+        function handleDrop(e) {
+            var items = e.dataTransfer.items;
+            e.preventDefault();
+            listing.innerHTML = "";
+
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i].webkitGetAsEntry();
+                if (item) {
+                    handleFiles(item, listing);
+                }
+            }
+            // let dt = e.dataTransfer
+            // let files = dt.files
+
+            //handleFiles(files)
+        }
+
+        function handleFiles(item, container) {
+            var elem = document.createElement("li");
+            elem.innerHTML = item.name;
+            container.appendChild(elem);
+
+            if (item.isDirectory) {
+                var directoryReader = item.createReader();
+                var directoryContainer = document.createElement("ul");
+                container.appendChild(directoryContainer);
+
+                directoryReader.readEntries(function(entries) {
+                entries.forEach(function(entry) {
+                    scanAndLogFiles(entry, directoryContainer);
+                });
+                });
+            }
+        }
+        
+    </script>
+
+    
+</body>
+</html>
